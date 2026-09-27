@@ -552,7 +552,7 @@ const BANK = {
   non52: ["blenet","brytome","crimope","crozump","delum","deplond","deplont","flothine","frolipe","glosop","grystod","ploshent","ploton","prespere","prestope","protrum","rebect","reflimp","regrest","restrimp","streblent","stumest","tridem","triden","triglone","trumepe","trymest"],
 
   // 5.2 syllable division: [first, rest]  (correct = open first syllable)
-  split: [["ro","bot"],["ba","sic"],["ba","sis"],["be","came"],["be","gin"],["be","have"],["be","long"],["be","side"],["cri","sis"],["de","bate"],["de","fend"],["de","fine"],["de","note"],["de","tect"],["di","rect"],["e","rode"],["e","volve"],["fe","male"],["fi","nal"],["fo","cus"],["ho","tel"],["hu","man"],["hu","mid"],["i","tem"],["la","bel"],["le","gal"],["lo","cal"],["lo","cate"],["mo","ment"],["mu","sic"],["na","tive"],["o","pen"],["pi","lot"],["pre","pare"],["pro","mote"],["pro","tect"],["pro","vide"],["pu","pil"],["re","fine"],["re","late"],["re","lax"],["re","mote"],["re","side"],["re","solve"],["se","cure"],["se","lect"],["si","lent"],["stu","dent"],["u","nite"],["u","nit"],["ba","gel"],["bo","nus"],["e","rase"],["li","lac"],["me","nu"],["mi","nus"],["mo","tel"],["pe","can"],["po","lite"],["tu","lip"],["de","cline"],["de","spite"],["mi","grate"],["pro","gram"],["re","spond"],["re","sponse"],["re","strict"],["se","cret"],["su","preme"]],
+  split: [["ro","bot"],["ba","sic"],["ba","sis"],["be","came"],["be","gin"],["be","have"],["be","long"],["be","side"],["cri","sis"],["de","bate"],["de","fend"],["de","fine"],["de","note"],["de","tect"],["di","rect"],["e","rode"],["e","volve"],["fe","male"],["fi","nal"],["fo","cus"],["ho","tel"],["hu","man"],["hu","mid"],["i","tem"],["la","bel"],["le","gal"],["lo","cal"],["lo","cate"],["mo","ment"],["mu","sic"],["na","tive"],["o","pen"],["pi","lot"],["pre","pare"],["pro","mote"],["pro","tect"],["pro","vide"],["pu","pil"],["re","fine"],["re","late"],["re","lax"],["re","mote"],["re","side"],["re","solve"],["se","cure"],["se","lect"],["si","lent"],["stu","dent"],["u","nite"],["u","nit"],["ba","gel"],["bo","nus"],["e","rase"],["li","lac"],["men","u"],["mi","nus"],["mo","tel"],["pe","can"],["po","lite"],["tu","lip"],["de","cline"],["de","spite"],["mi","grate"],["pro","gram"],["re","spond"],["re","sponse"],["re","strict"],["se","cret"],["su","preme"]],
 
   // prefixes: meaning + words (prefix + rest)
   prefixes: {
@@ -570,7 +570,7 @@ const BANK = {
   yLong_e: ["baby","candy","copy","duty","empty","entry","fifty","holy","hungry","lady","lazy","navy","plenty","pony","study","tiny","twenty","ugly","angry","ivy","kitty","penny","silly","teddy","cozy","gravy","lily","nasty","ruby","tidy","belly","bunny","dizzy","hobby","holly","jolly","taffy","enemy","colony","melody","economy","industry"],
 
   // syllable count (dash = syllable break)
-  count: ["ro-bot","mu-sic","si-lent","pi-lot","ho-tel","stu-dent","se-cret","pro-gram","tu-lip","me-nu",
+  count: ["ro-bot","mu-sic","si-lent","pi-lot","ho-tel","stu-dent","se-cret","pro-gram","tu-lip","men-u",
     "vol-ca-no","com-po-nent","reg-u-late","de-pos-it","de-vel-op","ed-u-cate","in-dus-try","pop-u-late","stim-u-lus","di-ox-ide","com-pro-mise","con-clu-sive","hu-man-kind","ab-so-lute","al-co-hol","ben-e-fit","col-o-ny","com-pe-tent","do-mes-tic","e-lec-tric","e-lec-tron","el-e-ment","el-e-vate","e-lev-en","en-e-my","en-ve-lope","ex-e-cute","in-stru-ment","i-so-late","mel-o-dy","po-ta-to","to-ma-to","vi-ta-min","mol-e-cule","an-i-mal","cab-i-net","can-di-date","hos-pi-tal","in-di-cate","max-i-mum","min-i-mum","pos-i-tive","sub-sti-tute","ev-i-dent","es-ti-mate","co-pi-lot","re-lo-cate","sub-di-vide","ba-nan-a","a-ban-don","drag-on-fly","la-dy-bug","ba-by-sit",
     "ac-a-dem-ic","ec-o-nom-ic","e-con-o-my","e-quiv-a-lent","math-e-mat-ics","re-ju-ve-nate","e-lim-i-nate","i-den-ti-cal","i-den-ti-ty","in-ves-ti-gate","sig-nif-i-cant","dis-crim-i-nate","pre-dom-i-nate","re-pub-li-can","in-sen-si-tive","re-dis-trib-ute","de-reg-u-late","pe-nin-su-la","a-cad-e-my",
     "in-sig-nif-i-cant"],
@@ -625,9 +625,12 @@ function makeQ(t, subs, pick) {
   else if (t === "split") {
     const p = pick ? BANK.split.find(s=>s.join("")===pick) : rnd(BANK.split);
     const [a,b] = p; const w = a+b;
-    const good = `${a} | ${b}`, bad = `${a+b[0]} | ${b.slice(1)}`;
+    const open = /[aeiouy]$/.test(a);
+    const good = `${a} | ${b}`, bad = open ? `${a+b[0]} | ${b.slice(1)}` : `${a.slice(0,-1)} | ${a.slice(-1)+b}`;
     q.word = w; q.choices = shuffle([good,bad]); q.ans = q.choices.indexOf(good);
-    q.exp = `${a} | ${b}: split before the consonant, so "${a}" is an open syllable.`;
+    q.exp = open ? `${a} | ${b}: split before the consonant, so "${a}" is an open syllable.`
+      : (() => { const v = a.match(/[aeiou](?=[^aeiou]*$)/)[0], mac = {a:"ā",e:"ē",i:"ī",o:"ō",u:"ū"}[v], op = a.slice(0,-1);
+          return `${a} | ${b}: "${op.replace(v, mac)}-${a.slice(-1)+b}" isn't a word, so flex! Split after the consonant: "${a}" is closed, so the ${v} is short.`; })();
   }
   else if (t === "prefix") {
     let keys = [];
