@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Word Defense · Step 5</title>
+<title>Word Defense · Steps 5–6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&family=Russo+One&display=swap" rel="stylesheet">
 <style>
@@ -317,7 +317,7 @@ body.calm .boss-av,body.calm .pod.shake,body.calm .tower.wrong,body.calm .oc.rea
 <!-- HOME -->
 <section id="home" class="screen show">
   <div class="logo">
-    <div class="logo-top">WILSON STEP 5</div>
+    <div class="logo-top">WILSON STEPS 5–6</div>
     <h1>WORD<span>DEFENSE</span></h1>
     <div class="logo-sub">Open Syllable Ops</div>
   </div>
@@ -577,6 +577,13 @@ const BANK = {
 
   // a sound: word + index of the target "a" (long /ā/ in accented open syllable vs schwa /ə/)
   aLong: [["basic",1],["bagel",1],["basis",1],["baby",1],["lady",1],["lazy",1],["navy",1],["gravy",2],["label",1],["native",1],["fragrant",2],["flagrant",2],["patron",1],["radon",1],["data",1],["vacate",1],["potato",3],["tomato",3],["placate",2]],
+  // ===== Step 6.1: suffixes added to UNCHANGING base words: [base, suffix] =====
+  suf61: [["quick","er"],["quick","est"],["quick","ly"],["use","ful"],["rest","less"],["complete","ly"],["develop","ment"],["sad","ness"],["novel","ty"],["depend","able"],["fall","en"],["travel","er"],["child","ish"],["direct","or"],["rock","y"],["brave","ly"],["help","less"],["kind","ness"],["old","er"],["luck","y"],["gold","en"],["invest","ment"],["aware","ness"],["self","ish"],["safe","ty"],["visit","or"],["small","est"],["wire","less"],["absolute","ly"],["lock","er"],["fact","or"],["end","less"],["equip","ment"],["ill","ness"],["dust","y"],["long","er"],["predict","able"],["silent","ly"],["edit","or"],["punish","ment"],["sudden","ly"],["help","ful"],["like","ly"],["sick","ness"]],
+  // prefix + base + suffix: [prefix, base, suffix]
+  psuf61: [["un","wise","ly"],["dis","establish","ment"],["sub","contract","or"],["un","like","ly"],["un","just","ly"],["un","even","ly"],["dis","respect","ful"],["re","fund","able"],["dis","content","ment"],["un","predict","able"],["re","invest","ment"],["dis","enchant","ment"],["re","act","or"],["in","distinct","ly"]],
+  // spelling traps: [correct, wrong]  (-ful has one l; -less/-ness have a bonus s)
+  spell61: [["helpful","helpfull"],["useful","usefull"],["restful","restfull"],["disrespectful","disrespectfull"],["restless","restles"],["endless","endles"],["wireless","wireles"],["helpless","helples"],["sadness","sadnes"],["kindness","kindnes"],["illness","illnes"],["awareness","awarenes"],["sickness","sicknes"]],
+
   aSchwa: [["alone",0],["awake",0],["along",0],["across",0],["aside",0],["ago",0],["alike",0],["alive",0],["amaze",0],["adrift",0],["aflame",0],["arise",0],["arose",0],["ashore",0],["atop",0],["awhile",0],["awoke",0],["adopt",0],["abuse",0],["abandon",0],["soda",3],["extra",4],["data",3],["sofa",3],["tuba",3],["tuna",3],["zebra",4],["panda",4],["banana",5],["peninsula",8],["Alaskan",0]]
 };
 
@@ -588,15 +595,23 @@ const QTYPES = {
   prefix:  {name:"Prefix Meaning", icon:"🔑", subs:["5.1","5.2","5.5"]},
   ysound:  {name:"Y Sound",        icon:"🎯", subs:["5.3"]},
   count:   {name:"Syllable Count", icon:"🔢", subs:["5.4","5.5"]},
-  asound:  {name:"A Sound",        icon:"🔊", subs:["5.5"]}
+  asound:  {name:"A Sound",        icon:"🔊", subs:["5.5"]},
+  suftype: {name:"Vowel or Consonant Suffix", icon:"🧪", subs:["6.1"]},
+  sufbase: {name:"Find the Base Word", icon:"🧬", subs:["6.1"]},
+  sufspell:{name:"Suffix Spelling", icon:"✏️", subs:["6.1"]}
 };
 const SUBSTEPS = {
   "5.1":"Open syllables & prefixes",
   "5.2":"Open + closed / v-e words",
   "5.3":"y at the end (baby)",
   "5.4":"Multisyllabic words",
-  "5.5":"a & i schwa, prefix a-"
+  "5.5":"a & i schwa, prefix a-",
+  "6.1":"Vowel & consonant suffixes"
 };
+const SUF_V = ["able","en","er","est","ish","or","y","ed","es","ing","ive"];
+// all 6.1 words as {pre, base, suf, word}
+const ALL61 = () => [...BANK.suf61.map(([b,s])=>({pre:"",base:b,suf:s,word:b+s})),
+                     ...BANK.psuf61.map(([p,b,s])=>({pre:p,base:b,suf:s,word:p+b+s}))];
 
 const rnd = a => a[Math.floor(Math.random()*a.length)];
 const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
@@ -668,6 +683,35 @@ function makeQ(t, subs, pick) {
     q.prompt = "What does the glowing a say?";
     q.exp = schwa ? (i===0 ? `a alone in an unaccented first syllable says /ə/.` : `a at the end of a word says /ə/.`) : `a ends an accented open syllable, so it says /ā/.`;
   }
+  else if (t === "suftype") {
+    const all = ALL61();
+    const e = pick ? all.find(x=>x.word===pick) : rnd(all);
+    const v = SUF_V.includes(e.suf);
+    q.word = e.word; q.hi = [e.word.length-e.suf.length, e.suf.length];
+    q.choices = ["Vowel suffix","Consonant suffix"]; q.ans = v?0:1;
+    q.prompt = `Is -${e.suf} a vowel or consonant suffix?`;
+    q.exp = e.suf==="y" ? `-y acts as a vowel suffix. It says /ē/.`
+          : `-${e.suf} begins with ${e.suf[0]}, a ${v?"vowel":"consonant"}, so it's a ${v?"vowel":"consonant"} suffix.`;
+  }
+  else if (t === "sufbase") {
+    const all = ALL61();
+    const e = pick ? all.find(x=>x.word===pick) : rnd(all);
+    const right = e.base;
+    const wrong = e.pre ? [e.pre+e.base, e.base+e.suf[0]] : [e.base+e.suf[0], e.base.slice(0,-1)];
+    q.word = e.word; q.choices = shuffle([right, ...wrong]); q.ans = q.choices.indexOf(right);
+    q.prompt = "What's the base word?";
+    q.exp = e.pre ? `${e.pre}- + ${e.base} + -${e.suf}: the base word is "${e.base}".`
+                  : `${e.base} + -${e.suf}: the base word is "${e.base}". Read it first: ${e.base}… ${e.word}.`;
+  }
+  else if (t === "sufspell") {
+    const p = pick ? BANK.spell61.find(s=>s[0]===pick) : rnd(BANK.spell61);
+    const [good, bad] = p;
+    const suf = ["ness","less","ful"].find(s=>good.endsWith(s));
+    q.word = `${good.slice(0,-suf.length)} + ${suf}`;
+    q.choices = shuffle([good, bad]); q.ans = q.choices.indexOf(good);
+    q.prompt = "Which spelling is right?";
+    q.exp = suf==="ful" ? `-ful has only one l: ${good}.` : `-${suf} has a bonus s: ${good}.`;
+  }
   q.id = Math.random().toString(36).slice(2,9);
   if (!q.prompt) q.prompt = {type:"Which syllable type?",realnon:"Real or nonsense?",split:"Where does it split?",ysound:"What does y say?"}[t];
   return q;
@@ -683,6 +727,8 @@ function wordsFor(t, subs) {
     case "ysound": return [...BANK.yLong_i, ...BANK.yLong_e];
     case "count": return BANK.count.map(c=>c.replace(/-/g,""));
     case "asound": return [...new Set([...BANK.aLong, ...BANK.aSchwa].map(e=>e[0]))];
+    case "suftype": case "sufbase": return [...new Set(ALL61().map(e=>e.word))];
+    case "sufspell": return BANK.spell61.map(s=>s[0]);
   }
   return [];
 }
@@ -780,7 +826,10 @@ document.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e
 
 // substep + type chip pickers
 function buildPicker(subsEl, typesEl, key){
-  const saved = store.get(key, {subs:["5.1","5.2"], off:[]});
+  let saved = store.get(key, {subs:["5.1","5.2"], off:[]});
+  // Link in with a preset, e.g. index.html?subs=6.1  (from Suffix Splice Lab)
+  const qsSubs = (new URLSearchParams(location.search).get("subs") || "").split(",").filter(s => SUBSTEPS[s]);
+  if (qsSubs.length) saved = { subs: qsSubs, off: [] };
   subsEl.innerHTML = Object.keys(SUBSTEPS).map(s => `<button class="chip ${saved.subs.includes(s)?"on":""}" data-s="${s}"><b>${s}</b> ${SUBSTEPS[s]}</button>`).join("");
   const state = { subs: saved.subs.slice(), off: saved.off.slice() };
   function renderTypes(){
